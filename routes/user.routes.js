@@ -7,5 +7,6 @@ const userController = require('../controllers/user.controller')
 //tidak menggunakan prefix karena nanti akan berbeda, tidak pake prefix karena nanti login dan logout akan beda
 router.post('/signup', upload.none(), userController.signUp);
 router.post('/login', upload.none(), userController.login);
+router.get('/getuser', upload.none(), userController.getUser);
 
 module.exports = router

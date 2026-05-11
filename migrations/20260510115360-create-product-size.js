@@ -2,23 +2,20 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('OrderItems', {
+    await queryInterface.createTable('ProductSizes', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.BIGINT
       },
-      order_id: {
+      product_id: {
         type: Sequelize.BIGINT
       },
-      product_size_id: {
+      size_id: {
         type: Sequelize.BIGINT
       },
-      qty: {
-        type: Sequelize.INTEGER
-      },
-      price: {
+      stock: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -30,22 +27,23 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addConstraint("OrderItems", {
-      fields: ['order_id'], //Column fk
+
+    await queryInterface.addConstraint("ProductSizes", {
+      fields: ['product_id'], //Column fk
       type: 'foreign key',
-      name: "fk_custom_order_id", //alias nya
+      name: "fk_custom_product_id", //alias nya
       references: { //pk nya ada dimana
-        table: "Orders",
+        table: "Products",
         field: 'id' //nama pk nya
       },
       onDelete: 'CASCADE', //Jika pk dihapus, data FK ikut terhapus
       onUpdate: 'CASCADE', //Jika Pk(id) di ubah, id fk ikut terubah
     });
 
-    await queryInterface.addConstraint("OrderItems", {
-      fields: ['product_size_id'], //Column fk
+    await queryInterface.addConstraint("ProductSizes", {
+      fields: ['size_id'], //Column fk
       type: 'foreign key',
-      name: "fk_custom_product_size_id", //alias nya
+      name: "fk_custom_size_id", //alias nya
       references: { //pk nya ada dimana
         table: "Sizes",
         field: 'id' //nama pk nya
@@ -54,9 +52,8 @@ module.exports = {
       onUpdate: 'CASCADE', //Jika Pk(id) di ubah, id fk ikut terubah
     });
 
-
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('OrderItems');
+    await queryInterface.dropTable('ProductSizes');
   }
 };

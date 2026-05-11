@@ -6,7 +6,7 @@ const { User } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 const passwordHash = require('password-hash');
-const {auth_secret} = require('../config/base.config')
+const { auth_secret } = require('../config/base.config')
 const jwt = require('jsonwebtoken')
 
 module.exports = {
@@ -85,5 +85,35 @@ module.exports = {
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message))
         }
+    },
+
+    getUser: async (req, res) => {
+        try {
+            const { page, limit } = req.query;
+            // page : ambil data di halaman ke berapa, limit : munculin data berapa
+            // offset : menentukan data yang dimunculkan mulai dari berapa
+            const offset = (Number(page) - 1) * Number(limit);
+            // contoh page 1 = 1-1 = 0 , limitnya 10 : 0 * 10 = 0 jadi offset nya 0
+            //data nya dimulai dari 1, halaman ke 1 datanya 1-10
+            //contoh page 2 = 2-1 = 1, limit nya 10 : 1 * 10 = 10, jadi offset nya 10 data nya dimulai dari 11, halaman ke 2 10-20
+            const { count, rows } = await User.findAndCountAll({
+                offset: Number(offset),
+                limit: Number(limit),
+               
+            });
+            const formatPagination = {
+                data: rows, //data yang dimunculkan
+                limit: limit,
+                rows: (Number(offset) + 1) + "-" + (Number(offset) + rows.length),
+                total: count, //jumlah data keseluruhan
+                page: page, //sedang di halaman ke berapa
+            }
+
+            return res.status(200).json(response(200, "success", formatPagination));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
     }
+
+
 }

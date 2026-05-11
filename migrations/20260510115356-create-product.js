@@ -18,9 +18,6 @@ module.exports = {
       price: {
         type: Sequelize.INTEGER
       },
-      stock: {
-        type: Sequelize.INTEGER
-      },
       image: {
         type: Sequelize.STRING
       },
