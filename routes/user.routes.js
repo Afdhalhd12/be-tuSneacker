@@ -9,4 +9,6 @@ router.post('/signup', upload.none(), userController.signUp);
 router.post('/login', upload.none(), userController.login);
 router.get('/getuser', upload.none(), userController.getUser);
 
+
+
 module.exports = router

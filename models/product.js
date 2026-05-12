@@ -19,8 +19,15 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     price: DataTypes.INTEGER,
-    stock: DataTypes.INTEGER,
-    image: DataTypes.STRING,
+    image: {
+      type : DataTypes.STRING,
+      get(){
+        // getter : memanipulasi data untuk responsenya
+        const rawValue = this.getDataValue('image');
+        //image yang di db cuman filename, di response jadi link yang bisa diuka/ditampulkan gambarnya
+        return rawValue ? `http://localhost:3000/uploads/${rawValue}` : null;
+      }
+    },
     brand: DataTypes.STRING,
     category: DataTypes.STRING
   }, {

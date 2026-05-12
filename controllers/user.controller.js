@@ -36,7 +36,7 @@ module.exports = {
                 return res.status(400).json(response(400, "Validasi Error", "Email Duplicated. Try another email"));
             }
             const newUser = await User.create(data);
-            return res.status(200).json(response(200, "Success create account"));
+            return res.status(201).json(response(201, "Success create account"));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
         }
