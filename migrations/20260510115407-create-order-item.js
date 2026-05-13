@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       price: {
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT
       },
       createdAt: {
         allowNull: false,
@@ -47,7 +47,7 @@ module.exports = {
       type: 'foreign key',
       name: "fk_custom_product_size_id", //alias nya
       references: { //pk nya ada dimana
-        table: "Sizes",
+        table: "ProductSizes",
         field: 'id' //nama pk nya
       },
       onDelete: 'CASCADE', //Jika pk dihapus, data FK ikut terhapus

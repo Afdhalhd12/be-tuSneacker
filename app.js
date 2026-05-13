@@ -6,6 +6,8 @@ const db = require("./models")
 const methodOverride = require('method-override')
 const userRoutes = require('./routes/user.routes')
 const productRoutes = require('./routes/product.routes')
+const sizeRoutes = require('./routes/size.routes')
+const productSizeRoutes = require('./routes/productSize.routes')
 const {checkToken} = require('./middleware/auth')
 
 //cek koneki model - migration - proyek sequelize
@@ -18,6 +20,8 @@ app.use(express.json()); //mengijinkan req.body format json
 app.use(methodOverride("_method")); //menggunakan method put, delete, patch
 app.use('/', userRoutes); //mendaftarkan routes dab prefix nya
 app.use('/product', productRoutes); //mendaftarkan routes dab prefix nya
+app.use('/size', sizeRoutes); //mendaftarkan routes dab prefix nya
+app.use('/productsize', productSizeRoutes); //mendaftarkan routes dab prefix nya
 
 app.get('/', (req, res) => {
   res.send('Hello')
