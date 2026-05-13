@@ -118,15 +118,38 @@ module.exports = {
             return res.status(500).json(response(500, "Server Error", error.message))
         }
     },
-    getProduct : async (req, res) => {
+    
+    getProduct: async (req, res) => {
         try {
-            const {page, limit} = req.query;
+            const { page, limit } = req.query;
             const offset = (Number(page) - 1) * Number(limit);
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-             const { name, sortBy, order } = req.query
-             const {count, rows} = 
+            const { name, sortBy, order } = req.query
+            const { count, rows } = await Product.findAndCountAll({
+                where: name ? {
+                    name: {
+                        [Op.like]: `%${name}%` //mencari yang mirip
+                    }
+                } : {},
+                offset: Number(offset),
+                limit: Number(limit),
+
+
+                //Cari berdasarkan field name di db dari name req.query
+                // kalau di params postman ada sortby order, jalannin pengurutan, klo gaada pake default. misal sortBy wn order DESC
+                order: sortBy && order ? [[sortBy, order]] : []
+            });
+            const formatPagination = {
+                data: rows, //data yang dimunculkan
+                limit: limit,
+                rows: (Number(offset) + 1) + "-" + (Number(offset) + rows.length),
+                total: count, //jumlah data keseluruhan
+                page: page, //sedang di halaman ke berapa
+            }
+
+            return res.status(200).json(response(200, 'Success', formatPagination));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message))
         }
