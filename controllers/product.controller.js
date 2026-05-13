@@ -118,7 +118,7 @@ module.exports = {
             return res.status(500).json(response(500, "Server Error", error.message))
         }
     },
-    
+
     getProduct: async (req, res) => {
         try {
             const { page, limit } = req.query;
@@ -152,6 +152,27 @@ module.exports = {
             return res.status(200).json(response(200, 'Success', formatPagination));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message))
+        }
+    },
+
+    deleteProduct: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const product = await Product.findByPk(id);
+            const imageName = product.getDataValue('image');
+             // Karena image udah diganti jadi link di getter model di ambil yang aslinya pake getDataValue
+            // Cari image ke folder uploads
+            const filePath = path.join(__dirname, '../uploads', imageName);
+            if (fs.existsSync(filePath)) {
+                // hapus file
+                fs.unlinkSync(filePath);
+            }
+            const deleteProcess = await Product.destroy({
+                where: { id: id }
+            });
+            return res.status(200).json(response(200, 'deleted'));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
         }
     }
 }
