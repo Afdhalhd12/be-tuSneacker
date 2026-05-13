@@ -155,12 +155,25 @@ module.exports = {
         }
     },
 
+    showProduct: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const product = await Product.findByPk(id);
+            if (!product) {
+                return res.status(400).json(response(400, "Data product [id] not found"));
+            }
+            return res.status(200).json(response(200, "Success", product));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
+    },
+
     deleteProduct: async (req, res) => {
         try {
             const { id } = req.params;
             const product = await Product.findByPk(id);
             const imageName = product.getDataValue('image');
-             // Karena image udah diganti jadi link di getter model di ambil yang aslinya pake getDataValue
+            // Karena image udah diganti jadi link di getter model di ambil yang aslinya pake getDataValue
             // Cari image ke folder uploads
             const filePath = path.join(__dirname, '../uploads', imageName);
             if (fs.existsSync(filePath)) {
