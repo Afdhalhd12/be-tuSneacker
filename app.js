@@ -8,6 +8,8 @@ const userRoutes = require('./routes/user.routes')
 const productRoutes = require('./routes/product.routes')
 const sizeRoutes = require('./routes/size.routes')
 const productSizeRoutes = require('./routes/productSize.routes')
+const paymentRoutes = require('./routes/payment.routes')
+const addressRoutes = require('./routes/address.routes')
 const {checkToken} = require('./middleware/auth')
 
 //cek koneki model - migration - proyek sequelize
@@ -22,6 +24,8 @@ app.use('/', userRoutes); //mendaftarkan routes dab prefix nya
 app.use('/product', productRoutes); //mendaftarkan routes dab prefix nya
 app.use('/size', sizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/productsize', productSizeRoutes); //mendaftarkan routes dab prefix nya
+app.use('/payment', paymentRoutes); //mendaftarkan routes dab prefix nya
+app.use('/address', addressRoutes); //mendaftarkan routes dab prefix nya
 
 app.get('/', (req, res) => {
   res.send('Hello')

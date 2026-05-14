@@ -16,8 +16,8 @@ module.exports = {
             const check = jwt.verify(token, auth_secret);
             // karena nanti pengguna perlu data identitas pengguna (userId atau yang lain), panggil patload yang dikirim jwt.sign() di logincontroller . data payload tersimpan di const check (hasil verify), data payload yang di jwt.sign (userId, name, email)
 
-            next(); //lanjutkan proses routing yang disimpan
             req.user = check;
+            next(); //lanjutkan proses routing yang disimpan
         } catch (error) {
             // jika terjadi error, ini hubungannya dengan token, jadi kasi 401 (suruh login lagi)
             return res.status(401).json(response(401, "Server Error", "Please login and try again!"))
