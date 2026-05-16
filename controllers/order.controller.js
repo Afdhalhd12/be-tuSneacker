@@ -104,5 +104,46 @@ module.exports = {
             await transaction.rollback();
             return res.status(500).json(response(500, "Server Error", error.message));
         }
+    },
+
+    paymentUpdate: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body || {};
+
+            const schema = {
+                status: {
+                    type: "string",
+                    enum: ["Pending", "Success", "Failed"]
+                }
+            };
+
+            const validate = v.validate({ status }, schema);
+
+            if (validate.length > 0) {
+                return res.status(400).json(
+                    response(400, "Validasi error", validate)
+                );
+            }
+
+            const order = await Order.findByPk(id);
+
+            if (!order) {
+                return res.status(404).json(
+                    response(404, "Order not found")
+                );
+            }
+
+            await order.update({ status });
+
+            return res.status(200).json(
+                response(200, "Success", order)
+            );
+
+        } catch (error) {
+            return res.status(500).json(
+                response(500, "Server Error", error.message)
+            );
+        }
     }
 }
