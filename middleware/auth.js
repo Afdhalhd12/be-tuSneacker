@@ -5,10 +5,14 @@ const { auth_secret } = require('../config/base.config')
 module.exports = {
     checkToken: async (req, res, next) => {
         // token diambil dari header
-        const token = req.header("Authorization");
+        let token = req.header("Authorization");
         if (!token) {
             // 401 : err untuk pengguna yang belum login (unauthorized)
             return res.status(401).json(response(401, "unauthorized", "Please Login and try again!"));
+        }
+
+        if (token.startsWith('Bearer')) {
+            token = token.slice(7, token.length);
         }
 
         try {
