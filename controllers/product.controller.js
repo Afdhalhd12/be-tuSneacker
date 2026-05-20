@@ -6,6 +6,7 @@ const { Product } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 
+
 module.exports = {
     createProduct: async (req, res) => {
         try {

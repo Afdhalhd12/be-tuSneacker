@@ -22,10 +22,11 @@ db.sequelize.authenticate()
 
 // app.use : mendaftarkan routing atau config header lain, urutannya sblm, app.get
 app.use(cors());
+app.use('/uploads', express.static('uploads'))
 app.use(express.json()); //mengijinkan req.body format json
 app.use(methodOverride("_method")); //menggunakan method put, delete, patch
 app.use('/', userRoutes); //mendaftarkan routes dab prefix nya
-app.use('/product', checkToken, productRoutes); //mendaftarkan routes dab prefix nya
+app.use('/product', productRoutes); //mendaftarkan routes dab prefix nya
 app.use('/size', checkToken, sizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/productsize', checkToken, productSizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/payment', checkToken, paymentRoutes); //mendaftarkan routes dab prefix nya

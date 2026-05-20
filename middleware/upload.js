@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
     // Ambil format file .jpg .png
-    const ext = path .extname(file.originalname)
+    const ext = path.extname(file.originalname)
     // uniquesuffix isinya nama file random, ext isi nya jpg jadi perlu digabung
     //fieldname nama input dari formulir nya
     const name = file.fieldname + '-' + uniqueSuffix + ext
