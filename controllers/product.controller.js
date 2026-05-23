@@ -123,7 +123,10 @@ module.exports = {
     getProduct: async (req, res) => {
         try {
             const { page, limit } = req.query;
-            const offset = (Number(page) - 1) * Number(limit);
+
+            const pageNumber = Number(page) || 1;
+            const limitNumber = Number(limit) || 12;
+            const offset = (Number(pageNumber) - 1) * Number(limitNumber);
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
@@ -135,7 +138,7 @@ module.exports = {
                     }
                 } : {},
                 offset: Number(offset),
-                limit: Number(limit),
+                limit: Number(limitNumber),
 
 
                 //Cari berdasarkan field name di db dari name req.query
