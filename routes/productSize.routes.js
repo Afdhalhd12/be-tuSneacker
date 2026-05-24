@@ -5,5 +5,6 @@ const productSizeontroller = require('../controllers/productSize.controller')
 
 router.post('/', upload.none(), productSizeontroller.createProductSize);
 router.put('/:id', upload.none(), productSizeontroller.updateProductSize);
+router.get('/product/:product_id', productSizeontroller.getProductSizesByProductId);
 
 module.exports = router
