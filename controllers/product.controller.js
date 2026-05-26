@@ -5,6 +5,7 @@ const fs = require('fs');
 const { Product } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
+const { group } = require("console");
 
 
 module.exports = {
@@ -130,13 +131,22 @@ module.exports = {
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-            const { name, sortBy, order } = req.query
-            const { count, rows } = await Product.findAndCountAll({
-                where: name ? {
-                    name: {
+            const { name, brand, sortBy, order } = req.query
+            let condition = {};
+            if(name){
+                condition.name = {
                         [Op.like]: `%${name}%` //mencari yang mirip
-                    }
-                } : {},
+                };
+            }
+            if(brand){
+                condition.brand = {
+                        [Op.like]: `%${brand}%` //mencari yang mirip
+                };
+            }
+
+            const { count, rows } = await Product.findAndCountAll({
+                where: condition,
+                
                 offset: Number(offset),
                 limit: Number(limitNumber),
 
@@ -156,6 +166,19 @@ module.exports = {
             return res.status(200).json(response(200, 'Success', formatPagination));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message))
+        }
+    },
+
+    getBrands: async (req, res) => {
+        try{
+            const brands = await Product.findAll({
+                attributes: ["brand"],
+                group: ["brand"]
+            });
+
+           return res.status(200).json(response(200, "success", brands));
+        }catch(error){
+            return res.status(500).json(response(500,"Server Error", error.message));
         }
     },
 

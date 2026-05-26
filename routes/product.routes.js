@@ -7,6 +7,7 @@ const { checkToken } = require('../middleware/auth')
 router.post('/', checkToken, upload.single('image'), productController.createProduct);
 router.put('/:id', checkToken, upload.single('image'), productController.updateProduct);
 router.get('/', productController.getProduct);
+router.get('/brands', productController.getBrands);
 router.get('/:id', productController.showProduct);
 router.delete('/:id', checkToken, productController.deleteProduct);
 
