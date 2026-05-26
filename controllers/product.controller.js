@@ -131,7 +131,6 @@ module.exports = {
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-            // 
             const { name, brand, sortBy, order } = req.query
             let condition = {};
             if(name){
