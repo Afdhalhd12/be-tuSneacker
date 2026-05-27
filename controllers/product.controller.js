@@ -2,7 +2,7 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 const path = require("path")
 const fs = require('fs');
-const { Product, Size } = require('../models');
+const { Product } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 const { group } = require("console");
@@ -131,40 +131,40 @@ module.exports = {
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-            const { name, brand, size, category, sortBy, order } = req.query
+            const { name, brand, category, sortBy, order, minPrice, maxPrice } = req.query
             let condition = {};
             let include = [];
-            if(name){
+            if (name) {
                 condition.name = {
-                        [Op.like]: `%${name}%` //mencari yang mirip
+                    [Op.like]: `%${name}%` //mencari yang mirip
                 };
             }
-            if(brand){
+            if (brand) {
                 condition.brand = {
-                        [Op.like]: `%${brand}%` //mencari yang mirip
+                    [Op.like]: `%${brand}%` //mencari yang mirip
                 };
             }
-            if(category){
+            if (category) {
                 condition.category = {
-                        [Op.like]: `%${category}%` //mencari yang mirip
+                    [Op.like]: `%${category}%` //mencari yang mirip
                 };
             }
-            if(size){
-                include.push({
-                    model: size,
-                    where : {
-                        size : Number(size)
-                    },
-                    through: {
-                        attributes: []
-                    }
-                });
+            // filter price
+            if (minPrice || maxPrice) {
+                condition.price = {};
+
+                if (minPrice) {
+                    condition.price[Op.gte] = Number(minPrice);
+                }
+
+                if (maxPrice) {
+                    condition.price[Op.lte] = Number(maxPrice);
+                }
             }
+
 
             const { count, rows } = await Product.findAndCountAll({
                 where: condition,
-                include,
-                distinct: true,
                 offset: Number(offset),
                 limit: Number(limitNumber),
 
@@ -188,28 +188,28 @@ module.exports = {
     },
 
     getBrands: async (req, res) => {
-        try{
+        try {
             const brands = await Product.findAll({
                 attributes: ["brand"],
                 group: ["brand"]
             });
 
-           return res.status(200).json(response(200, "success", brands));
-        }catch(error){
-            return res.status(500).json(response(500,"Server Error", error.message));
+            return res.status(200).json(response(200, "success", brands));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
         }
     },
 
     getCategory: async (req, res) => {
-        try{
+        try {
             const categories = await Product.findAll({
                 attributes: ["category"],
                 group: ["category"]
             });
 
-           return res.status(200).json(response(200, "success", categories));
-        }catch(error){
-            return res.status(500).json(response(500,"Server Error", error.message));
+            return res.status(200).json(response(200, "success", categories));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
         }
     },
 
