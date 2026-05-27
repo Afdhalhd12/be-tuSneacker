@@ -8,6 +8,7 @@ router.post('/', checkToken, upload.single('image'), productController.createPro
 router.put('/:id', checkToken, upload.single('image'), productController.updateProduct);
 router.get('/', productController.getProduct);
 router.get('/brands', productController.getBrands);
+router.get('/categories', productController.getCategory);
 router.get('/:id', productController.showProduct);
 router.delete('/:id', checkToken, productController.deleteProduct);
 

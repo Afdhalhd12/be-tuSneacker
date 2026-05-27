@@ -131,7 +131,7 @@ module.exports = {
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-            const { name, brand, sortBy, order } = req.query
+            const { name, brand, category, sortBy, order } = req.query
             let condition = {};
             if(name){
                 condition.name = {
@@ -141,6 +141,11 @@ module.exports = {
             if(brand){
                 condition.brand = {
                         [Op.like]: `%${brand}%` //mencari yang mirip
+                };
+            }
+            if(category){
+                condition.category = {
+                        [Op.like]: `%${category}%` //mencari yang mirip
                 };
             }
 
@@ -177,6 +182,19 @@ module.exports = {
             });
 
            return res.status(200).json(response(200, "success", brands));
+        }catch(error){
+            return res.status(500).json(response(500,"Server Error", error.message));
+        }
+    },
+
+    getCategory: async (req, res) => {
+        try{
+            const categories = await Product.findAll({
+                attributes: ["category"],
+                group: ["category"]
+            });
+
+           return res.status(200).json(response(200, "success", categories));
         }catch(error){
             return res.status(500).json(response(500,"Server Error", error.message));
         }
