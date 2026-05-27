@@ -184,6 +184,29 @@ module.exports = {
                 .status(500)
                 .json(response(500, "Server Error", error.message));
         }
+    },
+
+    getProfile: async (req, res) => {
+        try {
+            const userId = req.user.userId;
+
+            const user = await User.findByPk(userId);
+
+            if (!user) {
+                return res
+                    .status(404)
+                    .json(response(404, "User not found"));
+            }
+
+            return res
+                .status(200)
+                .json(response(200, "Success", user));
+
+        } catch (error) {
+            return res
+                .status(500)
+                .json(response(500, "Server Error", error.message));
+        }
     }
 
 
