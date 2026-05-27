@@ -99,7 +99,7 @@ module.exports = {
             const { count, rows } = await User.findAndCountAll({
                 offset: Number(offset),
                 limit: Number(limit),
-               
+
             });
             const formatPagination = {
                 data: rows, //data yang dimunculkan
@@ -112,6 +112,77 @@ module.exports = {
             return res.status(200).json(response(200, "success", formatPagination));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
+        }
+    },
+
+    updateUser: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { name, email, password } = req.body;
+
+            const schema = {
+                name: { type: "string", optional: true },
+                email: { type: "email", optional: true },
+                password: { type: "string", min: 6, optional: true },
+            };
+
+            const data = {
+                name,
+                email,
+                password
+            };
+
+            const validate = v.validate(data, schema);
+
+            if (validate.length > 0) {
+                return res
+                    .status(400)
+                    .json(response(400, "Validation Error", validate));
+            }
+
+            const user = await User.findByPk(id);
+
+            if (!user) {
+                return res
+                    .status(404)
+                    .json(response(404, "User not found"));
+            }
+
+            if (req.file) {
+                const imageName = user.getDataValue('photoProfile');
+
+                if (imageName) {
+                    const filePath = path.join(__dirname, '../uploads', imageName);
+
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                }
+            }
+
+            await User.update({
+                name: name || user.name,
+                email: email || user.email,
+                password: password
+                    ? passwordHash.generate(password)
+                    : user.password,
+                photoProfile: req.file
+                    ? req.file.filename
+                    : user.getDataValue('photoProfile')
+            }, {
+                where: { id }
+            });
+
+            const newUser = await User.findByPk(id);
+
+            return res
+                .status(200)
+                .json(response(200, "success update", newUser));
+
+        } catch (error) {
+            return res
+                .status(500)
+                .json(response(500, "Server Error", error.message));
         }
     }
 

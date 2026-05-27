@@ -25,7 +25,16 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    role: DataTypes.STRING
+    role: DataTypes.STRING,
+    photoProfile: {
+      type: DataTypes.STRING,
+      get() {
+        const rawValue = this.getDataValue('photoProfile');
+        return rawValue
+          ? `http://localhost:3000/uploads/${rawValue}`
+          : null;
+      }
+    },
   }, {
     sequelize,
     modelName: 'User',
