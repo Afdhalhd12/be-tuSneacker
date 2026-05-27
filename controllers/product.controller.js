@@ -2,7 +2,7 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 const path = require("path")
 const fs = require('fs');
-const { Product } = require('../models');
+const { Product, Size } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 const { group } = require("console");
@@ -131,8 +131,9 @@ module.exports = {
             // req.query : ambil params di postman/ambil data acuan untuk search/sort
             // sortBy -> mengurutkan berdasarkan field apa
             // order : ASC/DESC, opsi pengututan
-            const { name, brand, category, sortBy, order } = req.query
+            const { name, brand, size, category, sortBy, order } = req.query
             let condition = {};
+            let include = [];
             if(name){
                 condition.name = {
                         [Op.like]: `%${name}%` //mencari yang mirip
@@ -148,10 +149,22 @@ module.exports = {
                         [Op.like]: `%${category}%` //mencari yang mirip
                 };
             }
+            if(size){
+                include.push({
+                    model: size,
+                    where : {
+                        size : Number(size)
+                    },
+                    through: {
+                        attributes: []
+                    }
+                });
+            }
 
             const { count, rows } = await Product.findAndCountAll({
                 where: condition,
-                
+                include,
+                distinct: true,
                 offset: Number(offset),
                 limit: Number(limitNumber),
 
