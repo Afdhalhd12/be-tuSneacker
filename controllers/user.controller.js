@@ -117,8 +117,17 @@ module.exports = {
 
     updateUser: async (req, res) => {
         try {
-            const { id } = req.params;
+            const userId = req.user.userId;
+
+            const user = await User.findByPk(userId);
+
+
             const { name, email, password } = req.body;
+            if (!user) {
+                return res
+                    .status(404)
+                    .json(response(404, "User not found"));
+            }
 
             const schema = {
                 name: { type: "string", optional: true },
@@ -140,13 +149,6 @@ module.exports = {
                     .json(response(400, "Validation Error", validate));
             }
 
-            const user = await User.findByPk(id);
-
-            if (!user) {
-                return res
-                    .status(404)
-                    .json(response(404, "User not found"));
-            }
 
             if (req.file) {
                 const imageName = user.getDataValue('photoProfile');
@@ -160,6 +162,20 @@ module.exports = {
                 }
             }
 
+            let existingUser = null;
+
+            // Cek apakah email sudah terdaftar atau belum
+            if (email && email !== user.email) {
+                const existingUser = await User.findOne({
+                    where: {
+                        email: email
+                    }
+                });
+            }
+            if (existingUser) {
+                return res.status(400).json(response(400, "Validasi Error", "Email Duplicated. Try another email"));
+            }
+
             await User.update({
                 name: name || user.name,
                 email: email || user.email,
@@ -170,10 +186,14 @@ module.exports = {
                     ? req.file.filename
                     : user.getDataValue('photoProfile')
             }, {
-                where: { id }
+                where: { id : userId }
             });
 
-            const newUser = await User.findByPk(id);
+            const newUser = await User.findByPk(userId, {
+                attributes : {
+                    exclude : ['password'] 
+                }
+            });
 
             return res
                 .status(200)

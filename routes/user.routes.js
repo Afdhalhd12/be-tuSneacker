@@ -9,7 +9,7 @@ const { checkToken } = require('../middleware/auth');
 router.post('/signup', upload.none(), userController.signUp);
 router.post('/login', upload.none(), userController.login);
 router.get('/getuser', upload.none(), userController.getUser);
-router.put('/updateuser/:id', checkToken, upload.single('photoProfile'),  userController.updateUser);
+router.put('/updateuser', checkToken, upload.single('photoProfile'),  userController.updateUser);
 router.get('/me', checkToken, upload.single('photoProfile'),  userController.getProfile);
 
 
