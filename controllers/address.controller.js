@@ -2,7 +2,7 @@ const Validator = require("fastest-validator");
 const v = new Validator();
 const path = require("path")
 const fs = require('fs');
-const { Address } = require('../models');
+const { Address, User } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 
@@ -16,7 +16,7 @@ module.exports = {
                 postalCode: { type: "string" },
                 notes: { type: "string", optional: true },
                 label: { type: "enum", values: ["home", "office"] },
-                isPrimary: { type: "boolean", optional: true }
+                isPrimary: { type: "boolean", optional: true,  }
             }
 
             const data = {
@@ -50,27 +50,43 @@ module.exports = {
         }
     },
 
-    getAddress: async (req, res) => {
-        try {
-            const userId = req.user.userId;
+   getAddress: async (req, res) => {
 
-            const addresses = await Address.findByPk(userId);
+    try {
 
-            if (!addresses) {
-                return res
-                    .status(404)
-                    .json(response(404, "Address not found"));
-            }
+        const userId = req.user.userId;
 
-            return res
-                .status(200)
-                .json(response(200, "Success", addresses));
+        const addresses = await Address.findAll({
 
-        } catch (error) {
-            return res
-                .status(500)
-                .json(response(500, "Server Error", error.message));
-        }
+            where: {
+                user_id: userId
+            },
+
+            include: [
+                {
+                    model : User,
+                    attributes : ['name']
+                }
+            ],
+
+            order: [
+                ["isPrimary", "DESC"]
+            ]
+
+        });
+
+        return res.status(200).json(
+            response(200, "Success", addresses)
+        );
+
+    } catch (error) {
+
+        return res.status(500).json(
+            response(500, "Server Error", error.message)
+        );
+
     }
+
+}
 }
 
