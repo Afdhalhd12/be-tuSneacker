@@ -24,7 +24,16 @@ module.exports = (sequelize, DataTypes) => {
     addressLine: DataTypes.STRING,
     city: DataTypes.STRING,
     postalCode: DataTypes.STRING,
-    notes: DataTypes.TEXT
+    notes: DataTypes.TEXT,
+    label: {
+      type: DataTypes.ENUM("home", "office"),
+      defaultValue: "home"
+    },
+
+    isPrimary: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   }, {
     sequelize,
     modelName: 'Address',
