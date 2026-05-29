@@ -31,5 +31,15 @@ module.exports = {
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
         }
+    },
+
+    getPayments: async (req, res) => {
+        try {
+            const payment = await Payment.findAll();
+
+            return res.status(200).json(response(200, "success", payment));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
     }
 }

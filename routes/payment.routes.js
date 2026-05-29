@@ -4,4 +4,5 @@ const upload = require('../middleware/upload')
 const paymentController = require('../controllers/payment.controller')
 
 router.post('/', upload.none(), paymentController.createPayment);
+router.get('/', paymentController.getPayments);
 module.exports = router
