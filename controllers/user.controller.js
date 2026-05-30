@@ -300,7 +300,7 @@ module.exports = {
 
             // Cek apakah email sudah terdaftar atau belum
             if (email && email !== user.email) {
-                const existingUser = await User.findOne({
+                 existingUser = await User.findOne({
                     where: {
                         email: email
                     }
@@ -320,10 +320,10 @@ module.exports = {
                     ? req.file.filename
                     : user.getDataValue('photoProfile')
             }, {
-                where: { id: userId }
+                where: { id: id }
             });
 
-            const newUser = await User.findByPk(userId, {
+            const newUser = await User.findByPk(id, {
                 attributes: {
                     exclude: ['password']
                 }

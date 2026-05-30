@@ -19,6 +19,7 @@ module.exports = {
             // cekk token apakah aktif atau sudh expired
             const check = jwt.verify(token, auth_secret);
             // karena nanti pengguna perlu data identitas pengguna (userId atau yang lain), panggil patload yang dikirim jwt.sign() di logincontroller . data payload tersimpan di const check (hasil verify), data payload yang di jwt.sign (userId, name, email)
+            
 
             req.user = check;
             next(); //lanjutkan proses routing yang disimpan
