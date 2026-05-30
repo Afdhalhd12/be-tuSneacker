@@ -10,11 +10,12 @@ const { isAdmin } = require('../middleware/isAdmin');
 router.post('/signup', upload.none(), userController.signUp);
 router.post('/login', upload.none(), userController.login);
 router.get('/getuser', upload.none(), userController.getUser);
-router.get('/showuser/:id',checkToken, isAdmin, upload.none(), userController.showUser);
-router.delete('/getuser/:id',checkToken, isAdmin, upload.none(), userController.deleteUser);
-router.put('/updateuser/:id',checkToken, isAdmin, upload.single('photoProfile'), userController.updateUserByAdmin);
+router.get('/showuser/:id', checkToken, isAdmin, upload.none(), userController.showUser);
+router.delete('/getuser/:id', checkToken, isAdmin, upload.none(), userController.deleteUser);
+router.put('/updateuser/:id', checkToken, isAdmin, upload.single('photoProfile'), userController.updateUserByAdmin);
 router.put('/updateuser', checkToken, upload.single('photoProfile'), userController.updateUser);
 router.get('/me', checkToken, upload.single('photoProfile'), userController.getProfile);
+router.get('/export', checkToken, isAdmin, userController.exportUsers)
 
 
 

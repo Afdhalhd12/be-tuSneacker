@@ -58,9 +58,7 @@ module.exports = {
     updateProduct: async (req, res) => {
         try {
             const { id } = req.params;
-
             const { name, description, price, brand, category } = req.body;
-            const { image } = req.file;
 
             const schema = {
                 name: { type: "string" },
@@ -87,32 +85,34 @@ module.exports = {
             if (!product) {
                 return res.status(400).json(response(400, "Validasi Error", "Data not found"));
             }
-            // Kalau ada file baru, file lama dihapus
-            if (req.file) {
-                const imageName = product.getDataValue('image');
-                // Karena image udah diganti jadi link di getter model di ambil yang aslinya pake getDataValue
-                // Cari image ke folder uploads
-                const filePath = path.join(__dirname, '../uploads', imageName);
-                //cek jika file ada dalam folder tersebut
-                if (fs.existsSync(filePath)) {
-                    //hapus file
-                    fs.unlinkSync(filePath);
-                    // Hasil dari proses update hanya true dan false buka data baru
-                    const updateProcess = await Product.update({
-                        name: data.name,
-                        description: data.description,
-                        price: data.price,
-                        brand: data.brand,
-                        category: data.category,
-                        // Jika ada data baru ambil namanya, kalau gaada ambil tanpa link (nama ghambar sebelumnya)
-                        image: (req.file ? req.file.filename : product.getDataValue('image'))
-                    }, {
-                        where: { id: id }
-                    });
-                    const newProduct = await Product.findByPk(id);
-                    return res.status(200).json(response(200, "success update", newProduct));
+
+            if (req.file) { // cek apakah user upload foto baru
+                const imageName = user.getDataValue('image'); // ambil nama foto lama dari database
+                if (imageName) { // cek apakah user punya foto lama
+                    const filePath = path.join(
+                        __dirname,
+                        '../uploads',
+                        imageName
+                    ); // buat path lengkap ke file lama
+
+                    if (fs.existsSync(filePath)) { // cek apakah file lama masih ada di folder uploads
+                        fs.unlinkSync(filePath); // hapus file lama
+                    }
                 }
             }
+            const updateProcess = await Product.update({
+                name: data.name,
+                description: data.description,
+                price: data.price,
+                brand: data.brand,
+                category: data.category,
+                // Jika ada data baru ambil namanya, kalau gaada ambil tanpa link (nama ghambar sebelumnya)
+                image: (req.file ? req.file.filename : product.getDataValue('image'))
+            }, {
+                where: { id: id }
+            });
+            const newProduct = await Product.findByPk(id);
+            return res.status(200).json(response(200, "success update", newProduct));
 
 
 

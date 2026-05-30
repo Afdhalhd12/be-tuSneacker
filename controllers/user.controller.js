@@ -6,8 +6,9 @@ const { User } = require('../models');
 const { response } = require('../helpers/response.formatter');
 const { Op } = require("sequelize");
 const passwordHash = require('password-hash');
-const { auth_secret } = require('../config/base.config')
-const jwt = require('jsonwebtoken')
+const { auth_secret } = require('../config/base.config');
+const jwt = require('jsonwebtoken');
+const ExcelJs = require('exceljs');
 
 module.exports = {
     signUp: async (req, res) => {
@@ -193,14 +194,22 @@ module.exports = {
             }
 
 
-            if (req.file) {
-                const imageName = user.getDataValue('photoProfile');
+            if (req.file) { // cek apakah user upload foto baru
 
-                if (imageName) {
-                    const filePath = path.join(__dirname, '../uploads', imageName);
+                const imageName = user.getDataValue('photoProfile'); // ambil nama foto lama dari database
 
-                    if (fs.existsSync(filePath)) {
-                        fs.unlinkSync(filePath);
+                if (imageName) { // cek apakah user punya foto lama
+
+                    const filePath = path.join(
+                        __dirname,
+                        '../uploads',
+                        imageName
+                    ); // buat path lengkap ke file lama
+
+                    if (fs.existsSync(filePath)) { // cek apakah file lama masih ada di folder uploads
+
+                        fs.unlinkSync(filePath); // hapus file lama
+
                     }
                 }
             }
@@ -300,7 +309,7 @@ module.exports = {
 
             // Cek apakah email sudah terdaftar atau belum
             if (email && email !== user.email) {
-                 existingUser = await User.findOne({
+                existingUser = await User.findOne({
                     where: {
                         email: email
                     }
@@ -363,6 +372,62 @@ module.exports = {
             return res
                 .status(500)
                 .json(response(500, "Server Error", error.message));
+        }
+    },
+
+    exportUsers: async (req, res) => {
+        try {
+            // Ambil data user yang role nya sebagai user
+            // Jangan ikut sertakan passsword
+            const users = await User.findAll({
+                where: {
+                    role: "user",
+                },
+                attributes: { exclude: ['password'] }
+            })
+
+            //exceljs.Workbook() : bawaan package exceljs utk membuat file excel baru di memory
+            // 1 workbook = 1 file
+            const workbook = new ExcelJs.Workbook();
+            // Buat worksheet : menambah sheet/tab baru di dalam file excel
+            const worksheet = workbook.addWorksheet('Users');
+
+            worksheet.columns = [
+                { header: 'ID', key: 'id', width: 10 },
+                { header: 'Nama', key: 'name', width: 30 },
+                { header: 'Email', key: 'email', width: 40 },
+                { header: 'Role', key: 'role', width: 15 },
+            ];
+
+            // Masukkan data ke worksheet
+            users.forEach(user => {
+                worksheet.addRow({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                });
+            });
+
+
+            //! setHeader : response supaya browser/postman tau ini tuh file excel dan bukan json
+            // Content-Type : memberitahu tipe file yang dikirim berupa format excel
+            // Content-Disposition : memberitahu browser untuk download file, bukan tampilkan di layar
+            // 'attachment' = download, filename = nama file hasil download
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=daftar-pengguna.xlsx');
+
+
+            // workbook.xlsx.write(res) : tulis isi file excel lgsg ke response HTTP
+            // res di sini sbg tempat tujuan stream file dr exceljs tadi
+            await workbook.xlsx.write(res);
+
+            // res.end() : tanda buat response selesai dikirim. wajib dipanggil setelah write() karena write() ga otomatis nutup response
+            // tanpa ini, koneksi HTTP tidak pernah ditutup dan file tidak selesai terdownload
+            res.end();
+
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
         }
     }
 
