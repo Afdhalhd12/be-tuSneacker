@@ -121,7 +121,23 @@ module.exports = {
                 .json(response(500, "Internal Server Error"));
         }
     },
-    
+
+    getProductSize: async (req, res) => {
+        try {
+            const {id} = req.params;
+            const productSize = await ProductSize.findAll({
+                where: {
+                    product_id: id
+                },
+                include: [Size]
+            });
+
+            return res.status(200).json(response(200, "success", productSize));
+        } catch (error) {
+
+        }
+    },
+
     getProductSizesByProductId: async (req, res) => {
         try {
             const { product_id } = req.params;
