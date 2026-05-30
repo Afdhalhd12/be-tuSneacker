@@ -72,7 +72,7 @@ module.exports = {
             }
 
             //jika validasi berhasil, buat token jwt
-            const token = jwt.sign({ userId: user.id, email: user.email, name: user.name }, auth_secret);
+            const token = jwt.sign({ userId: user.id, email: user.email, name: user.name, role: user.role }, auth_secret);
             if (!token) {
                 return res.status(400).json(response(400, "validasi error", "login failed"));
             }
@@ -96,9 +96,23 @@ module.exports = {
             // contoh page 1 = 1-1 = 0 , limitnya 10 : 0 * 10 = 0 jadi offset nya 0
             //data nya dimulai dari 1, halaman ke 1 datanya 1-10
             //contoh page 2 = 2-1 = 1, limit nya 10 : 1 * 10 = 10, jadi offset nya 10 data nya dimulai dari 11, halaman ke 2 10-20
+            const { name, sortBy, order } = req.query
+            let condition = {
+                role: "user"
+            };
+
+            if (name) {
+                condition.name = {
+                    [Op.like]: `%${name}%` //mencari yang mirip
+                };
+
+            }
             const { count, rows } = await User.findAndCountAll({
+                where: condition,
                 offset: Number(offset),
                 limit: Number(limit),
+
+                order: sortBy && order ? [[sortBy, order]] : []
 
             });
             const formatPagination = {
@@ -112,6 +126,35 @@ module.exports = {
             return res.status(200).json(response(200, "success", formatPagination));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
+        }
+    },
+
+    showUser: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const user = await User.findByPk(id);
+            if (!user) {
+                return res.status(400).json(response(400, "Data user [id] not found"));
+            }
+            return res.status(200).json(response(200, "Success", user));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
+    },
+
+    deleteUser: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const deleteProcess = await User.destroy({
+                where: { id: id }
+            });
+
+            if (!deleteProcess) {
+                return res.status(404).json(response(404, "User not found"));
+            }
+            return res.status(200).json(response(200, 'deleted', deleteProcess));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message))
         }
     },
 
@@ -186,12 +229,12 @@ module.exports = {
                     ? req.file.filename
                     : user.getDataValue('photoProfile')
             }, {
-                where: { id : userId }
+                where: { id: userId }
             });
 
             const newUser = await User.findByPk(userId, {
-                attributes : {
-                    exclude : ['password'] 
+                attributes: {
+                    exclude: ['password']
                 }
             });
 
@@ -205,6 +248,100 @@ module.exports = {
                 .json(response(500, "Server Error", error.message));
         }
     },
+
+    updateUserByAdmin: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const user = await User.findByPk(id);
+
+
+            const { name, email, password } = req.body;
+            if (!user) {
+                return res
+                    .status(404)
+                    .json(response(404, "User not found"));
+            }
+
+            const schema = {
+                name: { type: "string", optional: true },
+                email: { type: "email", optional: true },
+                password: { type: "string", min: 6, optional: true },
+            };
+
+            const data = {
+                name,
+                email,
+                password
+            };
+
+            const validate = v.validate(data, schema);
+
+            if (validate.length > 0) {
+                return res
+                    .status(400)
+                    .json(response(400, "Validation Error", validate));
+            }
+
+
+            if (req.file) {
+                const imageName = user.getDataValue('photoProfile');
+
+                if (imageName) {
+                    const filePath = path.join(__dirname, '../uploads', imageName);
+
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                }
+            }
+
+            let existingUser = null;
+
+            // Cek apakah email sudah terdaftar atau belum
+            if (email && email !== user.email) {
+                const existingUser = await User.findOne({
+                    where: {
+                        email: email
+                    }
+                });
+            }
+            if (existingUser) {
+                return res.status(400).json(response(400, "Validasi Error", "Email Duplicated. Try another email"));
+            }
+
+            await User.update({
+                name: name || user.name,
+                email: email || user.email,
+                password: password
+                    ? passwordHash.generate(password)
+                    : user.password,
+                photoProfile: req.file
+                    ? req.file.filename
+                    : user.getDataValue('photoProfile')
+            }, {
+                where: { id: userId }
+            });
+
+            const newUser = await User.findByPk(userId, {
+                attributes: {
+                    exclude: ['password']
+                }
+            });
+
+            return res
+                .status(200)
+                .json(response(200, "success update", newUser));
+
+        } catch (error) {
+            return res
+                .status(500)
+                .json(response(500, "Server Error", error.message));
+        }
+    },
+
+
+
 
     getProfile: async (req, res) => {
         try {
