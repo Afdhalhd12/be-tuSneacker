@@ -63,19 +63,19 @@ module.exports = {
             const user = await User.findOne({ where: { email: email } });
             // findOne : mencari 1 data bukan berdasarkan primary key
             if (!user) {
-                return res.status(400).json(response(400, "Validasi Error", "Email not found. Try again"));
+                return res.status(400).json(response(400, "Email not found. Try again", "Email not found. Try again"));
             }
             //mencocokan password teks dengan password encrpty
             const checkPassword = passwordHash.verify(password, user.password);
             // Jika tidak cocok
             if (!checkPassword) {
-                return res.status(400).json(response(400, "validasi error", "Password incorrect. Try again!"));
+                return res.status(400).json(response(400, "Password incorrect. Try again!", "Password incorrect. Try again!"));
             }
 
             //jika validasi berhasil, buat token jwt
             const token = jwt.sign({ userId: user.id, email: user.email, name: user.name, role: user.role }, auth_secret);
             if (!token) {
-                return res.status(400).json(response(400, "validasi error", "login failed"));
+                return res.status(400).json(response(400, "login failed", "login failed"));
             }
             //output
             const formatData = {
@@ -348,9 +348,6 @@ module.exports = {
                 .json(response(500, "Server Error", error.message));
         }
     },
-
-
-
 
     getProfile: async (req, res) => {
         try {

@@ -5,7 +5,7 @@ const productSizeontroller = require('../controllers/productSize.controller');
 const { checkToken } = require('../middleware/auth');
 const { isAdmin } = require('../middleware/isAdmin');
 
-router.post('/', upload.none(), productSizeontroller.createProductSize);
+router.post('/', checkToken, isAdmin,  upload.none(), productSizeontroller.createProductSize);
 router.put('/:id', upload.none(), productSizeontroller.updateProductSize);
 router.get('/product/:product_id', productSizeontroller.getProductSizesByProductId);
 router.get('/:id', checkToken, isAdmin, productSizeontroller.getProductSize);

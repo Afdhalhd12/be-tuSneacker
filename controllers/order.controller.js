@@ -6,10 +6,13 @@ const {
     Order,
     OrderItem,
     ProductSize,
+    Size,
+    User,
     sequelize
 } = require("../models");
 
 const { response } = require("../helpers/response.formatter");
+const { Op } = require("sequelize");
 
 module.exports = {
     createOrder: async (req, res) => {
@@ -181,36 +184,109 @@ module.exports = {
 
     paymentUpdate: async (req, res) => {
         try {
+            // Ambil id order dari URL
+            // Contoh: /orders/1
             const { id } = req.params;
+
+            // Ambil status baru dari body request
+            // Contoh:
+            // {
+            //    "status": "shipped"
+            // }
             const { status } = req.body || {};
 
+            // Validasi status yang diperbolehkan
             const schema = {
                 status: {
                     type: "string",
-                    enum: ["pending", "success", "failed"]
+                    // Status hanya boleh salah satu dari nilai berikut
+                    enum: [
+                        "pending",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                        "cancelled"
+                    ]
                 }
             };
 
+            // Jalankan validasi
             const validate = v.validate({ status }, schema);
 
+            // Jika validasi gagal
             if (validate.length > 0) {
                 return res.status(400).json(
                     response(400, "Validation error", validate)
                 );
             }
 
+            // Cari order berdasarkan id
             const order = await Order.findByPk(id);
 
+            // Jika order tidak ditemukan
             if (!order) {
                 return res.status(404).json(
                     response(404, "Order not found")
                 );
             }
 
-            await order.update({ status });
+            // Update status order
+            await order.update({
+                status
+            });
+
+            // Kirim response berhasil
+            return res.status(200).json(
+                response(
+                    200,
+                    "Payment updated successfully",
+                    order
+                )
+            );
+
+        } catch (error) {
+            // Jika terjadi error server
+            return res.status(500).json(
+                response(500, "Server Error", error.message)
+            );
+        }
+    },
+
+    getOrdersNonPending: async (req, res) => {
+        try {
+
+            const orders = await Order.findAll({
+                where: {
+                    status: {
+                        [Op.ne]: "pending"
+                    }
+                },
+                include: [
+                    {
+                        model: User,
+                        attributes: {
+                            exclude: ['password']
+                        }
+                    },
+                    {
+                        model: OrderItem,
+                        as: "items",
+                        include: [
+                            {
+                                model: ProductSize,
+                                include: [
+                                    Product,
+                                    Size
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                order: [["createdAt", "DESC"]]
+            });
 
             return res.status(200).json(
-                response(200, "Payment updated successfully", order)
+                response(200, "Success get orders", orders)
             );
 
         } catch (error) {
@@ -220,5 +296,88 @@ module.exports = {
                 response(500, "Internal Server Error")
             );
         }
+    },
+
+    getOrdersForUser: async (req, res) => {
+        try {
+            const userId = req.user.userId;
+            const orders = await Order.findAll({
+                where: {
+                    user_id: userId
+                },
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "items",
+                        include: [
+                            {
+                                model: ProductSize,
+                                include: [
+                                    Product,
+                                    Size
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                order: [["createdAt", "DESC"]]
+            });
+
+            return res.status(200).json(
+                response(200, "Success get orders", orders)
+            );
+
+
+
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json(
+                response(500, "Internal Server Error")
+            );
+        }
+    },
+
+    getDetailOrder: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const userId = req.user.userId;
+            const orders = await Order.findOne({
+                where: {
+                    id,
+                    user_id: userId
+                },
+                include: [
+                    {
+                        model: OrderItem,
+                        as: "items",
+                        include: [
+                            {
+                                model: ProductSize,
+                                include: [
+                                    Product,
+                                    Size
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                order: [["createdAt", "DESC"]]
+            });
+
+            if(!orders){
+                return res.status(404).json(response(404, "Order Not Found"));
+            }
+
+            return res.status(200).json(
+                response(200, "Success get orders", orders)
+            );
+
+
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
     }
+
 };

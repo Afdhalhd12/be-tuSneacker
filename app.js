@@ -29,7 +29,7 @@ app.use(methodOverride("_method")); //menggunakan method put, delete, patch
 app.use('/', userRoutes); //mendaftarkan routes dab prefix nya
 app.use('/product', productRoutes); //mendaftarkan routes dab prefix nya
 app.use('/size', checkToken, isAdmin, sizeRoutes); //mendaftarkan routes dab prefix nya
-app.use('/productsize', checkToken, productSizeRoutes); //mendaftarkan routes dab prefix nya
+app.use('/productsize', productSizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/payment', checkToken, paymentRoutes); //mendaftarkan routes dab prefix nya
 app.use('/address', checkToken, addressRoutes); //mendaftarkan routes dab prefix nya
 app.use('/order', checkToken, orderRoutes); //mendaftarkan routes dab prefix nya

@@ -22,7 +22,21 @@ module.exports = {
                 return res.status(400).json(response(400, "Validasi Error", validate));
             }
 
+            // cek duplicate
+            const existing = await Size.findOne({
+                where: {
+                    sizeName: data.sizeName,
+                },
+            });
+
+            if (existing) {
+                return res
+                    .status(409)
+                    .json(response(409, "Size already exists"));
+            }
+
             const size = await Size.create(data);
+            return res.status(201).json(response(201, 'Success', size));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
         }
