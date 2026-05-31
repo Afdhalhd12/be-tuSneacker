@@ -12,6 +12,7 @@ const paymentRoutes = require('./routes/payment.routes')
 const addressRoutes = require('./routes/address.routes')
 const orderRoutes = require('./routes/order.routes')
 const { checkToken } = require('./middleware/auth')
+const { isAdmin } = require('./middleware/isAdmin')
 const cors = require("cors");
 
 //cek koneki model - migration - proyek sequelize
@@ -27,7 +28,7 @@ app.use(express.json()); //mengijinkan req.body format json
 app.use(methodOverride("_method")); //menggunakan method put, delete, patch
 app.use('/', userRoutes); //mendaftarkan routes dab prefix nya
 app.use('/product', productRoutes); //mendaftarkan routes dab prefix nya
-app.use('/size', checkToken, sizeRoutes); //mendaftarkan routes dab prefix nya
+app.use('/size', checkToken, isAdmin, sizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/productsize', checkToken, productSizeRoutes); //mendaftarkan routes dab prefix nya
 app.use('/payment', checkToken, paymentRoutes); //mendaftarkan routes dab prefix nya
 app.use('/address', checkToken, addressRoutes); //mendaftarkan routes dab prefix nya

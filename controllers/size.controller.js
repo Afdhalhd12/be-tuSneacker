@@ -26,5 +26,15 @@ module.exports = {
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
         }
+    },
+
+    getSize: async (req, res) => {
+        try {
+            const size = await Size.findAll();
+
+            return res.status(200).json(response(200, "Success", size));
+        } catch (error) {
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
     }
 }
