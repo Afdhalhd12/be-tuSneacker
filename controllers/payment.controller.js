@@ -25,6 +25,8 @@ module.exports = {
                 return res.status(400).json(response(400, "Validasi Error", validate));
             }
 
+        
+
             const payment = await Payment.create(data);
             return res.status(201).json(response(201, "Success", payment));
 

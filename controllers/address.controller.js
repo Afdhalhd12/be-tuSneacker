@@ -34,6 +34,16 @@ module.exports = {
                 return res.status(400).json(response(400, "Validasi Error", validate));
             }
 
+            const addressUser = await Address.count({
+                where: {
+                    user_id: req.user.userId
+                }
+            })
+
+            if (addressUser >= 2) {
+                return res.status(400).json(response(400, "Maksimal alamat 2", "Validasi Error"));
+            }
+
             // Jika alamat baru dijadikan primary
             if (data.isPrimary === true) {
                 await Address.update(
@@ -156,6 +166,7 @@ module.exports = {
                     }
                 );
             }
+
             const address = await Address.update({
                 addressLine: data.addressLine,
                 city: data.city,
