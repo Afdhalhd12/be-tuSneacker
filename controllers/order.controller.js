@@ -41,8 +41,6 @@ module.exports = {
                 {
                     include: [Product],
                     transaction,
-                    // Lock row database untuk mencegah
-                    // checkout bersamaan menyebabkan stock minus
                     lock: transaction.LOCK.UPDATE
                 }
             );
@@ -111,7 +109,7 @@ module.exports = {
                     }
                 ]
             });
-
+1
             return res.status(201).json(
                 response(
                     201,
@@ -287,8 +285,6 @@ module.exports = {
                 response(200, "Success get orders", orders)
             );
 
-
-
         } catch (error) {
             console.error(error);
 
@@ -341,7 +337,6 @@ module.exports = {
 
     addToCart: async (req, res) => {
         try {
-
             const userId = req.user.userId;
             const { product_size_id, qty } = req.body;
 
@@ -614,7 +609,6 @@ module.exports = {
         try {
 
             const userId = req.user.userId;
-
             const { order_item_id, qty } = req.body;
 
             // Cari cart aktif user
@@ -665,11 +659,8 @@ module.exports = {
 
             // Kalau qty lebih dari 0 ilangin 
             if (qty <= 0) {
-
                 await item.destroy();
-
             } else {
-
                 await item.update({
                     qty
                 });
@@ -696,16 +687,7 @@ module.exports = {
                 totalPrice
             });
 
-            return res.status(200).json(
-                response(
-                    200,
-                    "Qty updated successfully",
-                    {
-                        item,
-                        totalPrice
-                    }
-                )
-            );
+            return res.status(200).json(response(200,"Qty updated successfully",{  item,  totalPrice }));
 
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));

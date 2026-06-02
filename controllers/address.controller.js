@@ -55,6 +55,7 @@ module.exports = {
                     }
                 );
             }
+
             const address = await Address.create({
                 addressLine: data.addressLine,
                 city: data.city,
@@ -72,13 +73,10 @@ module.exports = {
     },
 
     getAddress: async (req, res) => {
-
         try {
-
             const userId = req.user.userId;
 
             const addresses = await Address.findAll({
-
                 where: {
                     user_id: userId
                 },
@@ -89,13 +87,11 @@ module.exports = {
                         attributes: ['name']
                     }
                 ],
-
                 order: [
                     ["isPrimary", "DESC"]
                 ]
 
             });
-
             return res.status(200).json(
                 response(200, "Success", addresses)
             );
@@ -120,6 +116,7 @@ module.exports = {
             if (!deleteProcess) {
                 return res.status(404).json(response(404, "Address not found"));
             }
+            
             return res.status(200).json(response(200, 'deleted', deleteProcess));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));

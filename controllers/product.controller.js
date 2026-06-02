@@ -133,7 +133,7 @@ module.exports = {
             // order : ASC/DESC, opsi pengututan
             const { name, brand, category, sortBy, order, minPrice, maxPrice } = req.query
             let condition = {};
-            let include = [];
+            // let include = [];
             if (name) {
                 condition.name = {
                     [Op.like]: `%${name}%` //mencari yang mirip

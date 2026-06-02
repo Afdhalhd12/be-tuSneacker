@@ -57,7 +57,7 @@ module.exports = {
         table: "Addresses",
         field: 'id' //nama pk nya
       },
-      onDelete: 'CASCADE', //Jika pk dihapus, data FK ikut terhapus
+      onDelete: 'SET NULL', 
       onUpdate: 'CASCADE', //Jika Pk(id) di ubah, id fk ikut terubah
     });
 

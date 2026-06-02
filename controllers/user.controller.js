@@ -20,11 +20,13 @@ module.exports = {
                 email: { type: "string" },
                 password: { type: "string" },
             }
+
             const data = {
                 name: name,
                 email: email,
                 password: passwordHash.generate(password)
             }
+            
             const validate = v.validate(data, schema);
             if (validate.length > 0) {
                 return res.status(400).json(response(400, "Validasi Error", validate));
