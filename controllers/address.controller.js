@@ -47,7 +47,9 @@ module.exports = {
             // Jika alamat baru dijadikan primary
             if (data.isPrimary === true) {
                 await Address.update(
-                    { isPrimary: false },
+                    { 
+                        isPrimary: false 
+                    },
                     {
                         where: {
                             user_id: req.user.userId
@@ -116,7 +118,7 @@ module.exports = {
             if (!deleteProcess) {
                 return res.status(404).json(response(404, "Address not found"));
             }
-            
+
             return res.status(200).json(response(200, 'deleted', deleteProcess));
         } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
@@ -178,11 +180,7 @@ module.exports = {
                 }
             });
 
-            if (address[0] === 0) {
-                return res.status(404).json(
-                    response(404, "Address not found")
-                );
-            }
+          
 
             return res.status(200).json(response(200, "Success", address));
         } catch (error) {

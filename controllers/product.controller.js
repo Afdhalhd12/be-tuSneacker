@@ -87,7 +87,7 @@ module.exports = {
             }
 
             if (req.file) { // cek apakah user upload foto baru
-                const imageName = user.getDataValue('image'); // ambil nama foto lama dari database
+                const imageName = product.getDataValue('image'); // ambil nama foto lama dari database
                 if (imageName) { // cek apakah user punya foto lama
                     const filePath = path.join(
                         __dirname,
