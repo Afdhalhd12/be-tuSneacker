@@ -36,11 +36,13 @@ module.exports = {
                 );
             }
 
+
             const productSize = await ProductSize.findByPk(
                 product_size_id,
                 {
                     include: [Product],
                     transaction,
+                    // Buat ngelock transaksi biar dua orang ga bersamaan beli nya
                     lock: transaction.LOCK.UPDATE
                 }
             );

@@ -12,6 +12,7 @@ module.exports = {
         }
 
         if (token.startsWith('Bearer')) {
+            
             token = token.slice(7, token.length);
         }
 
